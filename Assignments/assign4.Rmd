@@ -109,5 +109,45 @@ College.train <- College[-testset,]
 
 (a) (5 marks)
 
+library(ISLR); data(Wage)
+k<-10; nDf <- 10; seed <- 1; cvErrs <- rep(NA,nDf)
+cvDat <- matrix(NA,nrow=nDf,ncol=4) for(df in 1:nDf) {
+res <- cv.lm(wage ~ poly(age,df),Wage,k,seed) merr <- res$meanErr; serr <- res$sdErr cvDat[df,] <- c(df,merr,merr-serr,merr+serr)
+}
+colnames(cvDat) <- c("df","meanErr","lwr","upr") 
+library(ggplot2)
+
+dfs <- plot.cv.lm(cvDat)
+
+ fit <- lm(wage ~ poly(age,dfs$df.1se),data=Wage)
+newdat <- data.frame(age=seq(from=min(Wage$age),to=max(Wage$age),length=100)) dfs$df.1se
+plotfitWage(fit,Wage,newdat)
+round(summary(lm(wage ~ poly(age,nDf),data=Wage))$coef,2)
+
+
+
+
+
 (b) (3 marks)
+
+nDf <- 10
+cvDat <- matrix(NA,nrow=nDf,ncol=4)
+ageMin <- min(Wage$age); ageMax <- max(Wage$age) ageMin <- ageMin - 0.001*(ageMax-ageMin)
+ageMax <- ageMax + 0.001*(ageMax-ageMin)
+for(df in 2:nDf) {
+ageBreaks <- seq(from=ageMin,to=ageMax,length=(df+1)) res <- cv.lm(wage ~ cut(age,ageBreaks),Wage,k,seed) merr <- res$meanErr; serr <- res$sdErr
+cvDat[df,] <- c(df,merr,merr-serr,merr+serr) }
+colnames(cvDat) <- c("df","meanErr","lwr","upr") cvDat <- na.omit(cvDat)
+library(ggplot2)
+dfs <- plot.cv.lm(cvDat)
+
+ageBreaks <- seq(from=ageMin,to=ageMax,length=(dfs$df.1se+1))
+fit <- lm(wage ~ cut(age,ageBreaks),data=Wage)
+newdat <- data.frame(age=seq(from=min(Wage$age),to=max(Wage$age),length=100)) dfs$df.1se
+
+
+plotfitWage(fit,Wage,newdat)
+
+
+
 
